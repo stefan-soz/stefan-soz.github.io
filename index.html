@@ -1,6 +1,2497 @@
-<!DOCTYPE html>
-<html>
-  <body>
-    <h1>Hello, World! Welcome to my cloudflare Pages website.</h1>
-  </body>
-</html>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..400&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Include Comfortaa Font in <head> if not already loaded -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
+
+<style>
+@view-transition {
+  navigation: auto;
+}
+
+/* ================= SYSTEM DESIGN TOKENS ================= */
+:root {
+  --bg: #0b0b0b;                    /* Deep matte obsidian/charcoal */
+  --text: #F9FAFB;
+  --text-muted: #c9c9c9;
+  --text-social: rgba(249, 250, 251, .8);
+  --amber: #0053B5;                /* Highway Safety Amber / Marker Light Yellow */
+  --steel: rgba(255, 255, 255, .15);
+
+  --glassLI: rgba(15, 17, 20, .45);
+  --glass: rgba(15, 17, 20, .45);
+  --glass-scrolled: rgba(11, 12, 13, .45);
+  --glass-active: #0b0b0b;
+  
+  --border: rgba(255, 255, 255, .05);
+  --border-scrolled: rgba(255, 255, 255, .09);
+  --scrollbar-thumb: rgba(255, 255, 255, .15);
+  --scrollbar-thumb-hover: var(--amber);
+  --bg-card: #111111;
+}
+
+/* ================= LIGHT MODE OVERRIDE ================= */
+body.light-theme {
+  --bg: #F4F5F6;
+  --text: #0F1115;
+  --text-muted: rgba(15, 17, 21, .9);
+  --text-social: rgba(15, 17, 21, .45);
+  --amber: #0053B5;              
+  --steel: rgba(0, 0, 0, .20);
+
+  --glassLI: rgba(255, 255, 255, 1);
+  --glass: rgba(255, 255, 255, .5);
+  --glass-scrolled: rgba(244, 245, 246, .8);
+  --glass-active: #F4F5F6;
+
+  --border: rgba(15, 17, 21, .06);
+  --border-scrolled: rgba(15, 17, 21, .1);
+  --scrollbar-thumb: rgba(0, 0, 0, .15);
+  --scrollbar-thumb-hover: var(--amber);
+  --bg-card: #ffffff;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Outfit", sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+  font-weight: 400;
+  background: var(--bg);
+  color: var(--text);
+  position: relative; 
+  min-height: 100vh;
+  transition: background .3s ease, color .3s ease;
+}
+
+body.lock-scroll {
+  overflow: hidden;
+}
+
+/* ================= FLOATING CAPSULE HEADER ================= */
+#mainHeader {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  width: calc(100% - 40px);
+  max-width: 1440px; 
+  border-radius: 40px; 
+  background: var(--glassLI);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  height: 76px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0);
+  transition:
+    height .4s cubic-bezier(0.4, 0, 0.2, 1),
+    top .4s cubic-bezier(0.4, 0, 0.2, 1),
+    width .4s cubic-bezier(0.4, 0, 0.2, 1),
+    border-radius .4s cubic-bezier(0.4, 0, 0.2, 1),
+    background .3s ease,
+    border .3s ease,
+    box-shadow .3s ease;
+}
+
+#mainHeader.scrolled {
+  top: 16px;
+  background: var(--glass-scrolled);
+  border: 1px solid var(--border-scrolled);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+/* Modal state for full-screen overlay */
+#mainHeader.active {
+  height: 100vh !important;
+  width: 100% !important;
+  top: 0 !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  border-radius: 0 !important;
+  border: none !important;
+  background: var(--glass-active) !important;
+  box-shadow: none !important;
+}
+
+/* ================= HEADER INNER ================= */
+.header-inner {
+  height: 76px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  position: relative;
+  z-index: 10;
+}
+
+.logo span {
+  color: var(--amber) !important;
+  font-weight: 800 !important;
+  margin-left: 1px;
+}
+
+/* ================= DESKTOP NAV ================= */
+.desktop-nav {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+#mainHeader.active .desktop-nav {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.desktop-nav > ul {
+  position: relative;
+  display: flex;
+  gap: 8px; 
+  list-style: none;
+  align-items: center;
+}
+
+.desktop-nav > ul > li {
+  position: relative;
+  z-index: 2;
+}
+
+.desktop-nav .nav-slider-pill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: var(--amber);
+  border-radius: 20px;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+              width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.2s ease;
+}
+
+.desktop-nav a {
+  text-decoration: none;
+  color: var(--text);
+  font-size: .75rem;
+  font-weight: 600;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  padding: 10px 18px; 
+  border-radius: 20px; 
+  border: 1px solid transparent;
+  transition: color .2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap; 
+}
+
+/* Updated hover state: White text on pill highlight */
+.desktop-nav > ul > li.is-highlighted > a {
+  color: #ffffff !important;
+}
+
+.arrow-icon {
+  width: 12px;
+  height: 12px;
+  fill: currentColor;
+  transition: transform 0.2s ease;
+}
+.desktop-nav li:hover .arrow-icon {
+  transform: rotate(180deg);
+}
+
+/* ====== DROPDOWN CARDS ====== */
+.desktop-nav .dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(12px);
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 24px; 
+  padding: 8px;
+  list-style: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .25s ease, transform .25s ease, visibility .25s ease, background-color .3s ease, border-color .3s ease;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  z-index: 10;
+}
+
+body.light-theme .desktop-nav .dropdown-menu {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, .08);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+}
+
+.desktop-nav li:hover > .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.desktop-nav .dropdown-slider-pill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: var(--amber);
+  border-radius: 92px;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  transition: transform 0.15s cubic-bezier(0.2, 0, 0, 1), 
+              width 0.15s cubic-bezier(0.2, 0, 0, 1),
+              height 0.15s cubic-bezier(0.2, 0, 0, 1),
+              opacity 0.15s ease;
+}
+
+.desktop-nav .dropdown-menu a {
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 10px 16px;
+  border-radius: 92px; 
+  text-transform: none;
+  letter-spacing: 0;
+  width: 100%;
+  border: 1px solid transparent;
+  display: block;
+  position: relative;
+  z-index: 2;
+  transition: color .2s ease;
+}
+
+/* Updated hover state: White text on dropdown pill highlight */
+.desktop-nav .dropdown-menu > li.is-dropdown-highlighted > a {
+  color: #ffffff !important;
+}
+
+@media (hover: hover) {
+  .desktop-nav .dropdown-menu li:hover > a {
+    border-color: transparent;
+    background: transparent;
+  }
+}
+
+/* ================= RIGHT ZONE UTILITIES ================= */
+.right-zone {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tooltip-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tooltip-wrapper::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: #16181d;
+  color: #F9FAFB;
+  border: 1px solid rgba(255, 255, 255, .08);
+  padding: 6px 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border-radius: 50px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease, visibility .2s ease;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  z-index: 10000;
+}
+
+body.light-theme .tooltip-wrapper::after {
+  background: #ffffff;
+  color: #0F1115;
+  border: 1px solid rgba(0, 0, 0, .08);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+@media (hover: hover) {
+  .tooltip-wrapper:hover::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+#mainHeader.active .tooltip-wrapper::after {
+  display: none !important;
+}
+
+.theme-toggle,
+.menu-icon {
+  background: transparent;
+  border: 1px solid var(--steel);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  transition: color .2s ease, background-color .2s ease, border-color .2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) {
+  .theme-toggle:hover {
+    border-color: var(--amber);
+    background: var(--amber);
+    color: #ffffff !important;
+  }
+}
+
+.theme-toggle svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  position: absolute;
+  transition: transform .3s cubic-bezier(0.4, 0, 0.2, 1), opacity .2s ease;
+}
+
+.sun-icon { opacity: 0; transform: rotate(-90deg); }
+.moon-icon { opacity: 1; transform: rotate(0deg); }
+
+body.light-theme .sun-icon { opacity: 1; transform: rotate(0deg); }
+body.light-theme .moon-icon { opacity: 0; transform: rotate(90deg); }
+
+/* Hide desktop utilities when hamburger is visible */
+@media (max-width: 1240px) {
+  .right-zone .desktop-only-util {
+    display: none !important;
+  }
+}
+
+/* ================= MOBILE TOGGLE ================= */
+.menu-icon {
+  flex-direction: column;
+  gap: 4px;
+}
+
+.menu-icon span {
+  height: 2px;
+  width: 16px;
+  background: currentColor;
+  transition: transform .25s ease, opacity .25s ease;
+}
+
+#mainHeader.active .menu-icon span:nth-child(1) {
+  transform: translateY(3px) rotate(45deg);
+}
+#mainHeader.active .menu-icon span:nth-child(2) {
+  transform: translateY(-3px) rotate(-45deg);
+}
+
+/* ================= MOBILE ACCORDION OVERLAY ================= */
+.nav-dropdown {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity .3s ease, transform .3s ease;
+  visibility: hidden;
+  padding: 24px 24px 30px 24px;
+  overflow-y: auto;
+  width: 100%;
+}
+
+#mainHeader.active .nav-dropdown {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+}
+
+/* Mobile Utilities Section (Theme Toggle) */
+.mobile-utilities {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.nav-links > li {
+  width: 100%;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: var(--text);
+  font-size: 1.15rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 18px 24px;
+  background: rgba(255,255,255,.02);
+  border-radius: 56px; 
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  border: 1px solid transparent;
+  transition: color .2s ease, background-color .2s ease, border-color .2s ease;
+}
+
+body.light-theme .nav-links a { background: rgba(0,0,0,.02); }
+
+.nav-links a:hover {
+  border-color: var(--amber);
+  background: var(--amber) !important;
+  color: #ffffff;
+}
+
+.nav-dropdown .arrow-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.nav-links .dropdown-wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-links .has-submenu.open .dropdown-wrapper { grid-template-rows: 1fr; }
+.nav-links .has-submenu.open .arrow-icon { transform: rotate(180deg); }
+
+.nav-links .has-submenu > a:hover .arrow-icon {
+  color: #ffffff;
+}
+
+.nav-dropdown .dropdown-menu {
+  overflow: hidden;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0;
+}
+
+.nav-links .has-submenu.open .dropdown-menu { padding: 8px 8px 16px 8px; }
+
+.nav-links .dropdown-menu a {
+  font-size: 1rem;
+  color: var(--text-muted);
+  text-transform: none;
+  font-weight: 500;
+  padding: 14px 20px;
+  background: transparent !important;
+  border-radius: 92px;
+}
+
+.nav-links .dropdown-menu a:hover {
+  border-color: var(--amber);
+  background: var(--amber) !important;
+  color: #ffffff;
+}
+
+/* ================= OVERLAY FOOTER ================= */
+.nav-socials {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  list-style: none;
+  margin-top: auto;
+  padding-top: 40px;
+  flex-wrap: wrap; 
+}
+
+.nav-socials li {
+  display: inline-flex;
+}
+
+.nav-socials a {
+  text-decoration: none;
+  color: var(--text-social);
+  font-size: .75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  padding: 10px 16px;
+  background: rgba(255,255,255,.03);
+  border-radius: 50px;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  white-space: nowrap;
+  transition: color .2s ease, background-color .2s ease, border-color .2s ease;
+}
+
+body.light-theme .nav-socials a { background: rgba(0,0,0,.03); }
+
+.nav-socials a:hover { 
+  border-color: var(--amber);
+  background: var(--amber);
+  color: #ffffff; 
+}
+
+@media (max-width: 480px) {
+  .nav-socials {
+    flex-direction: column; 
+    width: 100%;
+    gap: 10px;
+  }
+  .nav-socials li {
+    width: 100%;
+  }
+  .nav-socials a {
+    width: 100%; 
+    padding: 16px 20px; 
+    font-size: 0.85rem;
+  }
+}
+
+/* ================= RESPONSIVE EDGES & SPACINGS ================= */
+@media (max-width: 1240px) {
+  .desktop-nav { display: none !important; }
+  
+  #mainHeader {
+    width: calc(100% - 24px);
+    top: 16px;
+  }
+  #mainHeader.scrolled {
+    top: 12px;
+  }
+  .header-inner {
+    padding: 0 20px;
+  }
+  
+  .right-zone {
+    gap: 6px;
+  }
+  .theme-toggle,
+  .menu-icon {
+    width: 40px;  
+    height: 40px;
+  }
+  .theme-toggle svg {
+    width: 16px;
+    height: 16px;
+  }
+  .menu-icon span {
+    width: 14px;
+  }
+  #mainHeader.active .menu-icon span:nth-child(1) {
+    transform: translateY(3px) rotate(45deg);
+  }
+  #mainHeader.active .menu-icon span:nth-child(2) {
+    transform: translateY(-3px) rotate(-45deg);
+  }
+}
+
+@media (max-width: 768px) {
+  #mainHeader {
+    width: calc(100% - 8px);
+    top: 12px;
+    height: 68px;
+  }
+  #mainHeader.scrolled {
+    top: 4px;
+  }
+  .header-inner {
+    padding: 0 16px;
+    height: 68px;
+  }
+  .logo {
+    font-size: 1.15rem;
+  }
+  .nav-dropdown {
+    padding: 20px 16px 24px 16px;
+  }
+}
+
+@media (min-width: 1241px) {
+  .menu-icon { display: none !important; }
+  .nav-dropdown { display: none !important; }
+}
+
+/* ================= BRAND LOGO UPDATE ================= */
+.logo {
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+}
+
+.logo-img {
+  height: 45px;
+  width: auto;
+  display: block;
+  transition: opacity .3s ease;
+}
+
+/* Default state (Dark Mode): Hide light logo, show dark-theme asset */
+.logo-light {
+  display: none;
+}
+.logo-dark {
+  display: block;
+}
+
+/* Light Theme Override state: Flip the display properties */
+body.light-theme .logo-light {
+  display: block;
+}
+body.light-theme .logo-dark {
+  display: none;
+}
+
+/* ================= FULL BUTTON PRESS / CLICK EFFECT ================= */
+
+/* 1. Base setup */
+.desktop-nav a,
+.desktop-nav .dropdown-menu a,
+.theme-toggle,
+.menu-icon,
+.nav-links a,
+.nav-socials a {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.12s cubic-bezier(0.2, 0, 0, 1),
+              opacity 0.12s ease,
+              color 0.2s ease, 
+              background-color 0.2s ease, 
+              border-color 0.2s ease;
+}
+
+/* 2. Active Press State */
+.desktop-nav a:active,
+.desktop-nav .dropdown-menu a:active,
+.theme-toggle:active,
+.menu-icon:active,
+.nav-links a:active,
+.nav-socials a:active {
+  transform: scale(0.88) !important;
+  opacity: 0.85;                     
+  transition-duration: 0.05s;       
+}
+
+/* 3. Ripple Wave Element */
+.ripple-wave {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  transform: scale(0);
+  animation: ripple-animation 0.4s cubic-bezier(0, 0, 0.2, 1);
+  pointer-events: none;
+  z-index: 10;
+}
+
+body.light-theme .ripple-wave,
+.is-highlighted .ripple-wave,
+.is-dropdown-highlighted .ripple-wave {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+@keyframes ripple-animation {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+#about, #portfolio, #contact, #services {
+  /* Adjust this pixel value to create your desired top offset */
+  scroll-margin-top: 120px; 
+}
+</style>
+
+<header id="mainHeader">
+  <div class="header-inner">
+    <a href="" class="logo" aria-label="Home">
+      <img src="images/logodark.png" class="logo-img logo-dark" alt="Logo" />
+      <img src="images/logolight.png" class="logo-img logo-light" alt="Logo" />
+    </a>
+
+    <!-- DESKTOP NAVIGATION WITH SLIDING PILL -->
+    <nav class="desktop-nav">
+      <ul id="desktopNavTrack">
+        <div class="nav-slider-pill" id="desktopNavSlider"></div>
+<!--
+     
+        <li><a href="#services">Services</a></li>
+		-->
+		
+        <li><a href="#about">About</a></li>
+		   <li><a href="#portfolio">Portfolio</a></li>
+		<li><a href="#contact">Contact</a></li>
+ <!--
+        <li class="has-submenu">
+          <a href="/hotshottest/Blog">Resources
+            <svg class="arrow-icon" viewBox="0 0 448 512"><path d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 137.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>
+          </a>
+          <ul class="dropdown-menu resources-dropdown">
+            <div class="dropdown-slider-pill"></div>
+            <li><a href="/hotshottest/FAQ">FAQs</a></li>
+            <li><a href="/hotshottest/Blog">Blog</a></li>
+            <li><a href="/hotshottest/Blog/FMCSA-Decal-Requirements">FMCSA Decal Requirements</a></li>
+          </ul>
+        </li>
+ -->
+
+      </ul>
+    </nav>
+
+    <!-- RIGHT SIDE UTILITIES -->
+    <div class="right-zone">
+      <div class="tooltip-wrapper desktop-only-util" id="themeTooltip" data-tooltip="Toggle Interface Theme">
+        <button class="theme-toggle" aria-label="Toggle Environment Theme">
+          <svg class="sun-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          <svg class="moon-icon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        </button>
+      </div>
+
+      <button class="menu-icon" id="menuToggle" aria-label="Toggle Menu" aria-expanded="false">
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- MOBILE NAVIGATION OVERLAY -->
+  <nav class="nav-dropdown">
+    <!-- MOBILE TOP UTILITIES (Theme Toggle) -->
+    <div class="mobile-utilities">
+      <button class="theme-toggle" aria-label="Toggle Environment Theme">
+        <svg class="sun-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="moon-icon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+      </button>
+    </div>
+
+    <ul class="nav-links">
+    <!--    <li><a href="#portfolio">Portfolio</a></li>
+        <li><a href="#services">Services</a></li>
+		-->
+		
+        <li><a href="#about">About</a></li>
+		<li><a href="#portfolio">Portfolio</a></li>
+		<li><a href="#contact">Contact</a></li>
+<!-- .mobile-utilities
+      <li class="has-submenu">
+        <a href="#">Resources
+          <svg class="arrow-icon" viewBox="0 0 448 512"><path d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 137.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>
+        </a>
+        <div class="dropdown-wrapper">
+          <ul class="dropdown-menu">
+            <li><a href="/hotshottest/FAQ">FAQs</a></li>
+            <li><a href="/hotshottest/Blog">Blog</a></li>
+            <li><a href="/hotshottest/Blog/FMCSA-Decal-Requirements">FMCSA Decal Requirements</a></li>
+          </ul>
+        </div>
+      </li>
+ -->
+
+    </ul>
+
+    <ul class="nav-socials">
+      <li><a href="https://www.facebook.com/profile.php?id=61594045689533" target="_blank" rel="noopener">Facebook &#8599;</a></li>
+    </ul>
+  </nav>
+</header>
+
+<script>
+(function() {
+  const header = document.getElementById('mainHeader');
+  const toggle = document.getElementById('menuToggle');
+  const themeToggles = document.querySelectorAll('.theme-toggle');
+  const themeTooltip = document.getElementById('themeTooltip');
+  const body = document.body;
+
+  const isDesktop = () => window.innerWidth > 1240 && window.matchMedia('(hover: hover)').matches;
+
+  // ===== SLIDING PILL NAVIGATION LOGIC (DESKTOP ONLY) =====
+  const track = document.getElementById('desktopNavTrack');
+  const slider = document.getElementById('desktopNavSlider');
+  const navItems = track ? track.querySelectorAll(':scope > li') : [];
+  let isNavActive = false;
+
+  function moveSliderTo(item) {
+    if (!item || !slider || !isDesktop()) return;
+
+    const x = item.offsetLeft;
+    const y = item.offsetTop;
+    const w = item.offsetWidth;
+    const h = item.offsetHeight;
+
+    if (!isNavActive) {
+      slider.style.transition = 'none';
+      slider.style.width = `${w}px`;
+      slider.style.height = `${h}px`;
+      slider.style.transform = `translateX(${x}px) translateY(${y}px)`;
+      slider.offsetHeight;
+      slider.style.transition = '';
+      slider.style.opacity = '1';
+      isNavActive = true;
+    } else {
+      slider.style.transition = '';
+      slider.style.width = `${w}px`;
+      slider.style.height = `${h}px`;
+      slider.style.transform = `translateX(${x}px) translateY(${y}px)`;
+      slider.style.opacity = '1';
+    }
+
+    navItems.forEach(li => li.classList.remove('is-highlighted'));
+    item.classList.add('is-highlighted');
+  }
+
+  function hideSlider() {
+    if (!slider) return;
+    slider.style.opacity = '0';
+    navItems.forEach(li => li.classList.remove('is-highlighted'));
+    isNavActive = false;
+  }
+
+  if (track && slider && navItems.length > 0) {
+    navItems.forEach(item => {
+      item.addEventListener('mouseenter', () => {
+        if (isDesktop()) moveSliderTo(item);
+      });
+    });
+
+    track.addEventListener('mouseleave', hideSlider);
+
+    window.addEventListener('resize', () => {
+      if (!isDesktop()) {
+        hideSlider();
+        return;
+      }
+      const currentHighlighted = track.querySelector(':scope > li.is-highlighted');
+      if (currentHighlighted) moveSliderTo(currentHighlighted);
+    });
+  }
+
+  // ===== DROPDOWN SLIDING PILL LOGIC (DESKTOP ONLY) =====
+  const dropdowns = document.querySelectorAll('.desktop-nav .dropdown-menu');
+
+  dropdowns.forEach(dropdown => {
+    const pill = dropdown.querySelector('.dropdown-slider-pill');
+    const items = dropdown.querySelectorAll(':scope > li');
+    let isDropdownActive = false;
+
+    function moveDropdownPillTo(item) {
+      if (!item || !pill || !isDesktop()) return;
+
+      const x = item.offsetLeft;
+      const y = item.offsetTop;
+      const w = item.offsetWidth;
+      const h = item.offsetHeight;
+
+      if (!isDropdownActive) {
+        pill.style.transition = 'none';
+        pill.style.width = `${w}px`;
+        pill.style.height = `${h}px`;
+        pill.style.transform = `translateX(${x}px) translateY(${y}px)`;
+        pill.offsetHeight;
+        pill.style.transition = '';
+        pill.style.opacity = '1';
+        isDropdownActive = true;
+      } else {
+        pill.style.transition = '';
+        pill.style.width = `${w}px`;
+        pill.style.height = `${h}px`;
+        pill.style.transform = `translateX(${x}px) translateY(${y}px)`;
+        pill.style.opacity = '1';
+      }
+
+      items.forEach(li => li.classList.remove('is-dropdown-highlighted'));
+      item.classList.add('is-dropdown-highlighted');
+    }
+
+    function hideDropdownPill() {
+      if (!pill) return;
+      pill.style.opacity = '0';
+      items.forEach(li => li.classList.remove('is-dropdown-highlighted'));
+      isDropdownActive = false;
+    }
+
+    items.forEach(item => {
+      item.addEventListener('mouseenter', () => {
+        if (isDesktop()) moveDropdownPillTo(item);
+      });
+    });
+
+    dropdown.addEventListener('mouseleave', hideDropdownPill);
+  });
+
+  // ===== LIGHTWEIGHT MOBILE & THEME LOGIC =====
+  const updateTooltipText = (isLight) => {
+    if (themeTooltip) {
+      themeTooltip.setAttribute('data-tooltip', isLight ? 'Switch to Dark Mode' : 'Switch to Light Mode');
+    }
+  };
+
+  const savedTheme = localStorage.getItem('theme');
+  const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+  const useLightTheme = savedTheme === 'light' || (!savedTheme && prefersLight);
+
+  if (useLightTheme) {
+    body.classList.add('light-theme');
+  }
+  updateTooltipText(useLightTheme);
+
+  themeToggles.forEach(btn => {
+    btn.addEventListener('click', () => {
+      body.classList.toggle('light-theme');
+      const isLightNow = body.classList.contains('light-theme');
+      localStorage.setItem('theme', isLightNow ? 'light' : 'dark');
+      updateTooltipText(isLightNow);
+    });
+  });
+
+  const closeMenu = () => {
+    header.classList.remove('active');
+    body.classList.remove('lock-scroll');
+    if (toggle) toggle.setAttribute('aria-expanded', 'false'); 
+    header.querySelectorAll('.nav-links .has-submenu').forEach(el => el.classList.remove('open'));
+  };
+
+  if (toggle) {
+    toggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpening = !header.classList.contains('active');
+      header.classList.toggle('active');
+      toggle.setAttribute('aria-expanded', isOpening.toString());
+      body.classList.toggle('lock-scroll', header.classList.contains('active'));
+    });
+  }
+
+  const mobileSubmenuLinks = header.querySelectorAll('.nav-links .has-submenu > a');
+  mobileSubmenuLinks.forEach(anchor => {
+    anchor.addEventListener('click', (e) => {
+      e.preventDefault(); 
+      e.stopPropagation();
+      anchor.parentElement.classList.toggle('open');
+    });
+  });
+
+  // ===== CLOSE MOBILE MENU ON LINK CLICK =====
+  const mobileNav = header.querySelector('.nav-dropdown');
+  if (mobileNav) {
+    const navLinks = mobileNav.querySelectorAll('a');
+    navLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        // Only close if it's not a parent submenu toggle item
+        if (!link.parentElement.classList.contains('has-submenu')) {
+          closeMenu();
+        }
+      });
+    });
+  }
+
+  document.addEventListener('click', (e) => {
+    if (header && !header.contains(e.target)) closeMenu();
+  });
+
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 1240 && header && header.classList.contains('active')) closeMenu();
+  });
+
+  window.addEventListener('scroll', () => {
+    if (header) header.classList.toggle('scrolled', window.scrollY > 20);
+  });
+})();
+
+// ===== CLICK RIPPLE EFFECT =====
+function createRipple(e) {
+  const target = e.currentTarget;
+
+  const rect = target.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height);
+  const x = e.clientX - rect.left - size / 2;
+  const y = e.clientY - rect.top - size / 2;
+
+  const existingRipple = target.querySelector('.ripple-wave');
+  if (existingRipple) existingRipple.remove();
+
+  const ripple = document.createElement('span');
+  ripple.className = 'ripple-wave';
+  ripple.style.width = ripple.style.height = `${size}px`;
+  ripple.style.left = `${x}px`;
+  ripple.style.top = `${y}px`;
+
+  target.appendChild(ripple);
+
+  ripple.addEventListener('animationend', () => ripple.remove());
+}
+
+const clickableSelectors = [
+  '.theme-toggle',
+  '.menu-icon',
+  '.desktop-nav a',
+  '.nav-links a',
+  '.nav-socials a'
+];
+
+document.querySelectorAll(clickableSelectors.join(',')).forEach(btn => {
+  btn.addEventListener('pointerdown', createRipple);
+});
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- HERO SECTION -->
+<section id="heroSection">
+  <div class="hero-inner">
+    <!-- LEFT CONTENT ZONE -->
+    <div class="hero-content">
+      <h1 class="hero-title">
+        Fast modern websites for your small business
+      </h1>
+      
+      <div class="hero-actions">
+        <a href="#contact" class="btn-primary">
+          <span>Contact</span>
+          <svg class="arrow-icon" viewBox="0 0 448 512">
+            <path d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 137.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- RIGHT PHOTO ROTATOR ZONE -->
+    <div class="hero-visual">
+      <div class="photo-slider" id="heroPhotoSlider">
+        <img src="images/laptop-lt.png" class="slide-img active" alt="Showcase Preview 1" />
+        <img src="images/laptop-palmetto.png" class="slide-img" alt="Showcase Preview 2" />
+      </div>
+
+      <!-- Slide Indicator Dots -->
+      <div class="slider-dots" id="heroSliderDots">
+        <span class="dot active" data-index="0"></span>
+        <span class="dot" data-index="1"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+/* ================= HERO SECTION STYLES ================= */
+#heroSection {
+  font-family: "Comfortaa", sans-serif;
+  width: calc(100% - 40px);
+  max-width: 1440px;
+  margin: 120px auto 40px auto;
+  border-radius: 40px;
+  background: var(--glassLI);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 60px 56px;
+  min-height: 520px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  transition: background .3s ease, border-color .3s ease, box-shadow .3s ease;
+}
+
+body.light-theme #heroSection {
+  background: var(--glassLI);
+  border-color: var(--border);
+}
+
+.hero-inner {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+
+/* --- Left Side Content --- */
+.hero-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  z-index: 2;
+}
+
+.hero-title {
+  font-family: "Comfortaa", sans-serif;
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-bottom: 32px;
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.btn-primary {
+  font-family: "Comfortaa", sans-serif;
+  text-decoration: none;
+  background: var(--amber);
+  color: #ffffff !important;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 16px 36px;
+  border-radius: 50px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid transparent;
+  transition: transform 0.12s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s ease, box-shadow 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-primary .arrow-icon {
+  width: 12px;
+  height: 12px;
+  transform: rotate(-90deg);
+  fill: currentColor;
+}
+
+.btn-primary:hover {
+  opacity: 0.92;
+}
+
+.btn-primary:active {
+  transform: scale(0.92) !important;
+}
+
+/* --- Right Side Photo Rotator --- */
+.hero-visual {
+  position: relative;
+  width: 100%;
+  height: 380px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.photo-slider {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slide-img {
+  position: absolute;
+  max-width: 100%;
+  max-height: 360px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  filter: drop-shadow(0 16px 24px rgba(0, 0, 0, 0.35));
+}
+
+.slide-img.active {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+/* Slider Pagination Dots */
+.slider-dots {
+  position: absolute;
+  bottom: -10px;
+  display: flex;
+  gap: 8px;
+  z-index: 5;
+}
+
+.slider-dots .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--steel);
+  cursor: pointer;
+  transition: background-color 0.3s ease, width 0.3s ease;
+}
+
+.slider-dots .dot.active {
+  background: var(--amber);
+  width: 24px;
+  border-radius: 12px;
+}
+
+/* --- Responsive Layout Rules --- */
+@media (max-width: 1240px) {
+  #heroSection {
+    margin-top: 100px;
+    padding: 48px 40px;
+  }
+  .hero-title {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .hero-inner {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .hero-content {
+    align-items: center;
+    text-align: center;
+  }
+  .hero-visual {
+    height: 320px;
+  }
+  .slide-img {
+    max-height: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  #heroSection {
+    width: calc(100% - 16px);
+    margin-top: 88px;
+    border-radius: 28px;
+    padding: 36px 20px 48px 20px;
+  }
+  .hero-title {
+    font-size: 2rem;
+    margin-bottom: 24px;
+  }
+  .btn-primary {
+    width: 100%;
+    justify-content: center;
+    padding: 16px 24px;
+  }
+  .hero-actions {
+    width: 100%;
+  }
+  .hero-visual {
+    height: 260px;
+  }
+  .slide-img {
+    max-height: 240px;
+  }
+}
+</style>
+
+<script>
+(function() {
+  const slides = document.querySelectorAll('#heroPhotoSlider .slide-img');
+  const dots = document.querySelectorAll('#heroSliderDots .dot');
+  let currentSlide = 0;
+  let slideInterval = null;
+
+  function showSlide(index) {
+    slides.forEach((slide, i) => {
+      slide.classList.toggle('active', i === index);
+    });
+    dots.forEach((dot, i) => {
+      dot.classList.toggle('active', i === index);
+    });
+    currentSlide = index;
+  }
+
+  function nextSlide() {
+    const nextIndex = (currentSlide + 1) % slides.length;
+    showSlide(nextIndex);
+  }
+
+  function startRotation() {
+    stopRotation();
+    slideInterval = setInterval(nextSlide, 4000);
+  }
+
+  function stopRotation() {
+    if (slideInterval) clearInterval(slideInterval);
+  }
+
+  dots.forEach(dot => {
+    dot.addEventListener('click', (e) => {
+      const idx = parseInt(e.target.getAttribute('data-index'), 10);
+      showSlide(idx);
+      startRotation();
+    });
+  });
+
+  const heroVisual = document.querySelector('.hero-visual');
+  if (heroVisual) {
+    heroVisual.addEventListener('mouseenter', stopRotation);
+    heroVisual.addEventListener('mouseleave', startRotation);
+  }
+
+  startRotation();
+})();
+</script>
+
+
+<!-- ================= PORTFOLIO SECTION ================= -->
+<section id="portfolio">
+  <div class="portfolio-inner">
+    <!-- Section Header -->
+    <div class="portfolio-header">
+      <h2 class="portfolio-title">Selected Work</h2>
+    </div>
+
+    <!-- Portfolio Grid -->
+    <div class="portfolio-grid">
+      <!-- Card 1 -->
+      <a href="https://lttransport.us/index.aspx" target="_blank" rel="noopener noreferrer" class="portfolio-card">
+        <div class="card-media">
+          <img src="images/laptop-lt.png" alt="Project One Preview" class="card-img" />
+          <div class="card-overlay">
+            <span class="btn-primary pill-action-btn">
+              <span class="btn-text">View Website</span>
+              <svg class="external-arrow-icon" viewBox="0 0 512 512">
+                <path d="M352 0c-12.9 0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9L370.7 96 201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L416 141.3l41.4 41.4c9.2 9.2 22.9 11.9 34.9 6.9s19.8-16.6 19.8-29.6V32c0-17.7-14.3-32-32-32H352zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 0 80-35.8 80-80V288c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H224c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"/>
+              </svg>
+            </span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Card 2 -->
+      <a href="https://palmettorv.stefanswebdesigns.workers.dev/" target="_blank" rel="noopener noreferrer" class="portfolio-card">
+        <div class="card-media">
+          <img src="images/laptop-palmetto.png" alt="Project Two Preview" class="card-img" />
+          <div class="card-overlay">
+            <span class="btn-primary pill-action-btn">
+              <span class="btn-text">View Website</span>
+              <svg class="external-arrow-icon" viewBox="0 0 512 512">
+                <path d="M352 0c-12.9 0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9L370.7 96 201.4 265.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L416 141.3l41.4 41.4c9.2 9.2 22.9 11.9 34.9 6.9s19.8-16.6 19.8-29.6V32c0-17.7-14.3-32-32-32H352zM80 32C35.8 32 0 67.8 0 112V432c0 44.2 35.8 80 80 80H400c44.2 0 80-35.8 80-80V288c0-17.7-14.3-32-32-32s-32 14.3-32 32V432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V112c0-8.8 7.2-16 16-16H224c17.7 0 32-14.3 32-32s-14.3-32-32-32H80z"/>
+              </svg>
+            </span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+/* ================= PORTFOLIO SECTION STYLES ================= */
+#portfolio {
+  width: calc(100% - 40px);
+  max-width: 1440px;
+  margin: 40px auto;
+  border-radius: 40px;
+  background: var(--glassLI);
+  border: 1px solid var(--border);
+  padding: 60px 56px;
+  position: relative;
+  overflow: hidden;
+  transition: background .3s ease, border-color .3s ease;
+}
+
+body.light-theme #portfolio {
+  background: var(--glassLI);
+  border-color: var(--border);
+}
+
+.portfolio-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* --- Section Header --- */
+.portfolio-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.portfolio-title {
+  font-family: "Comfortaa", sans-serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin: 0;
+}
+
+/* --- Portfolio Grid Layout --- */
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  justify-content: center;
+  justify-items: center;
+}
+
+/* --- Card & Link Wrapper --- */
+.portfolio-card {
+  display: block;
+  width: 100%;
+  text-decoration: none;
+  border-radius: 28px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  position: relative;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+body.light-theme .portfolio-card {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.portfolio-card:hover,
+.portfolio-card:focus-visible {
+  border-color: var(--amber);
+}
+
+/* Media Box & Image */
+.card-media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+body.light-theme .card-media {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.portfolio-card:hover .card-img,
+.portfolio-card:focus-visible .card-img {
+  transform: scale(1.05);
+}
+
+/* Flat Overlay (No Blur) */
+.card-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  padding: 20px;
+}
+
+body.light-theme .card-overlay {
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.portfolio-card:hover .card-overlay,
+.portfolio-card:focus-visible .card-overlay {
+  opacity: 1;
+}
+
+/* Center Action Button (No Slide Up) */
+.pill-action-btn {
+  border-radius: 50px !important;
+  padding: 14px 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: "Comfortaa", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.external-arrow-icon {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+
+/* --- Responsive Rules --- */
+@media (max-width: 1240px) {
+  #portfolio {
+    padding: 48px 40px;
+  }
+}
+
+@media (max-width: 992px) {
+  .portfolio-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  #portfolio {
+    width: calc(100% - 16px);
+    border-radius: 24px;
+    padding: 24px 16px;
+    margin: 20px auto;
+  }
+
+  .portfolio-header {
+    margin-bottom: 24px;
+  }
+
+  .portfolio-title {
+    font-size: 1.75rem;
+  }
+
+  .portfolio-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .portfolio-card {
+    border-radius: 20px;
+  }
+
+  @media (hover: none) {
+    .card-overlay {
+      opacity: 1;
+      background: rgba(0, 0, 0, 0.4);
+    }
+    
+    body.light-theme .card-overlay {
+      background: rgba(255, 255, 255, 0.5);
+    }
+  }
+}
+</style>
+
+
+<!-- ABOUT SECTION -->
+<section id="about">
+  <div class="about-inner">
+    <!-- LEFT PHOTO ZONE -->
+    <div class="about-visual">
+      <div class="about-image-wrapper">
+        <img 
+          src="images/profile.jpg" 
+          alt="Freelance Web Developer" 
+          class="about-img" 
+        />
+      </div>
+    </div>
+
+<!-- RIGHT CONTENT ZONE -->
+    <div class="about-content">
+      <h2 class="about-title">
+        Hi, I'm Stefan.
+      </h2>
+      
+      <p class="about-description">
+        a 17-year-old developer building fast, modern websites for small businesses. I’ve been coding sites since my first site redesign at 14. Whether you need a fresh custom build or a site redesign to make it mobile-friendly, I keep things simple, clean, and fast.
+      </p>
+	   <p class="about-description">
+       This photo it not that good it is cropped from a group photo I'll take a better photo in the next few weeks.
+      </p>
+    </div>
+  </div>
+</section>
+<style>
+/* ================= ABOUT SECTION STYLES ================= */
+#about {
+  font-family: "Comfortaa", sans-serif;
+  width: calc(100% - 40px);
+  max-width: 1440px;
+  margin: 40px auto;
+  border-radius: 40px;
+  background: var(--glassLI);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 60px 56px;
+  min-height: 480px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  transition: background .3s ease, border-color .3s ease, box-shadow .3s ease;
+}
+
+@media (max-width: 768px) {
+  #about {
+    width: calc(100% - 16px);
+
+    padding: 24px 16px;
+  
+  }
+  }
+body.light-theme #aboutSection {
+  background: var(--glassLI);
+  border-color: var(--border);
+}
+
+.about-inner {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 56px;
+  align-items: center;
+}
+
+/* --- Left Side Photo --- */
+.about-visual {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.about-image-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+}
+
+.about-img {
+  width: 100%;
+  height: 420px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s ease;
+}
+
+.about-image-wrapper:hover .about-img {
+  transform: scale(1.03);
+}
+
+/* --- Right Side Content --- */
+.about-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  z-index: 2;
+}
+
+.about-title {
+  font-family: "Comfortaa", sans-serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-bottom: 20px;
+}
+
+.about-description {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--text);
+  opacity: 0.85;
+}
+
+/* --- Responsive Rules --- */
+@media (max-width: 1240px) {
+  #aboutSection {
+    padding: 48px 40px;
+  }
+  .about-title {
+    font-size: 1.9rem;
+  }
+  .about-img {
+    height: 380px;
+  }
+}
+
+@media (max-width: 992px) {
+  .about-inner {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .about-content {
+    align-items: center;
+    text-align: center;
+  }
+  .about-image-wrapper {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  #aboutSection {
+    width: calc(100% - 16px);
+    border-radius: 28px;
+    padding: 36px 20px;
+  }
+  .about-title {
+    font-size: 1.6rem;
+  }
+  .about-img {
+    height: 300px;
+  }
+}
+</style>
+
+
+
+
+
+
+
+<!-- ================= CONTACT SECTION ================= -->
+<section id="contact">
+  <div class="contact-inner">
+    <!-- Section Header -->
+    <div class="contact-header">
+      <h2 class="contact-title">Get in Touch</h2>
+    </div>
+
+    <!-- FormSubmit Form -->
+    <form action="https://formsubmit.co/stefanswebdesigns@gmail.com" method="POST" class="contact-form" id="contactForm">
+      
+      <!-- FormSubmit Configuration Options -->
+      <input type="hidden" name="_subject" value="New Contact Form Submission!">
+      <input type="hidden" name="_captcha" value="false">
+      <input type="hidden" name="_template" value="table">
+      <!-- Optional: Redirect URL after submission -->
+      <input type="hidden" name="_next" value="https://portfolio.stefanswebdesigns.workers.dev/thanks.html"> 
+
+      <div class="form-grid">
+        <!-- Name Field -->
+        <div class="form-group floating-group">
+          <input type="text" id="name" name="name" class="form-input pill-input" placeholder=" " required>
+          <label for="name" class="floating-label">Full Name</label>
+        </div>
+
+        <!-- Email Field -->
+        <div class="form-group floating-group">
+          <input type="email" id="email" name="email" class="form-input pill-input" placeholder=" " required>
+          <label for="email" class="floating-label">Email Address</label>
+        </div>
+      </div>
+
+      <!-- Message Field -->
+      <div class="form-group floating-group">
+        <textarea id="message" name="message" class="form-input form-textarea pill-textarea" placeholder=" " required></textarea>
+        <label for="message" class="floating-label textarea-label">Message</label>
+      </div>
+
+      <!-- Submit Action -->
+      <div class="form-actions">
+        <button type="submit" class="btn-primary btn-submit" id="submitBtn">
+          <span class="btn-text">Send Message</span>
+          <svg class="arrow-icon" viewBox="0 0 448 512">
+            <path d="M201.4 342.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 274.7 86.6 137.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/>
+          </svg>
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<style>
+/* ================= CONTACT SECTION STYLES ================= */
+#contact {
+  width: calc(100% - 40px);
+  max-width: 1440px;
+  margin: 40px auto;
+  border-radius: 40px;
+  background: var(--glassLI);
+  border: 1px solid var(--border);
+  padding: 60px 56px;
+  position: relative;
+  overflow: hidden;
+  transition: background .3s ease, border-color .3s ease, box-shadow .3s ease;
+}
+
+body.light-theme #contact {
+  background: var(--glassLI);
+  border-color: var(--border);
+}
+
+.contact-inner {
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* --- Section Header --- */
+.contact-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.contact-title {
+  font-family: "Comfortaa", sans-serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin: 0;
+}
+
+/* --- Form Layout & Inputs --- */
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* Floating Label Logic & Pill Styling */
+.floating-group {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.pill-input {
+  border-radius: 50px !important;
+}
+
+.pill-textarea {
+  border-radius: 28px !important;
+  resize: vertical;
+  min-height: 130px;
+  padding-top: 18px !important;
+}
+
+.form-input {
+  font-family: "Comfortaa", sans-serif;
+  width: 100%;
+  padding: 16px 24px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 1rem;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+body.light-theme .form-input {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.form-input:focus {
+  border-color: var(--amber);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 4px rgb(0 83 181 / 20%);
+}
+
+body.light-theme .form-input:focus {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+/* Floating Label Element */
+.floating-label {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text);
+  opacity: 0.5;
+  pointer-events: none;
+  padding: 0 6px;
+  background: transparent;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+              font-size 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+              opacity 0.2s ease, 
+              color 0.2s ease,
+              background 0.2s ease;
+}
+
+.textarea-label {
+  top: 24px;
+  transform: translateY(0);
+}
+
+/* Trigger Label Animation on Focus or filled state */
+.form-input:focus ~ .floating-label,
+.form-input:not(:placeholder-shown) ~ .floating-label {
+  transform: translateY(-38px);
+  font-size: 0.68rem;
+  opacity: 1;
+  color: var(--amber);
+  background: var(--glassLI);
+  border-radius: 4px;
+}
+
+.pill-textarea:focus ~ .textarea-label,
+.pill-textarea:not(:placeholder-shown) ~ .textarea-label {
+  transform: translateY(-32px);
+}
+
+/* --- Form Submit Button --- */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.btn-submit {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.2s ease;
+}
+
+.btn-submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.arrow-icon {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+  transition: transform 0.2s ease;
+}
+
+/* Loading spinner animation state */
+.btn-submit.is-submitting .arrow-icon {
+  animation: btnSpin 0.8s linear infinite;
+}
+
+@keyframes btnSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* --- Responsive Rules --- */
+@media (max-width: 1240px) {
+  #contact {
+    padding: 48px 40px;
+  }
+}
+
+@media (max-width: 768px) {
+  #contact {
+    width: calc(100% - 16px);
+
+    padding: 24px 16px;
+  
+  }
+  
+  .contact-header {
+    margin-bottom: 20px;
+  }
+  
+  .contact-title {
+    font-size: 1.75rem;
+  }
+  
+  .contact-form {
+    gap: 16px;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .btn-submit {
+    width: 100%;
+    justify-content: center;
+  }
+}
+</style>
+
+<script>
+(function() {
+  const form = document.getElementById('contactForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const btnText = submitBtn ? submitBtn.querySelector('.btn-text') : null;
+
+  if (form && submitBtn && btnText) {
+    form.addEventListener('submit', function() {
+      // Update state immediately when valid form is submitted
+      submitBtn.classList.add('is-submitting');
+      submitBtn.disabled = true;
+      btnText.textContent = 'Sending...';
+    });
+  }
+})();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<footer id="mainFooter">
+  <div class="footer-inner">
+    <!-- BRAND & LINKS -->
+    <div class="footer-main">
+      <a href="#" class="footer-logo" aria-label="Home">
+        <img src="images/logodark.png" class="logo-img logo-dark" alt="Logo" />
+        <img src="images/logolight.png" class="logo-img logo-light" alt="Logo" />
+      </a>
+
+      <ul class="footer-links">
+	  <!--
+	  
+        
+        <li><a href="#services">Services</a></li>
+		-->
+		
+        <li><a href="#about">About</a></li>
+		<li><a href="#portfolio">Portfolio</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li><a href="#" id="privacyLink">Privacy</a></li>
+      </ul>
+    </div>
+
+    <!-- BOTTOM BAR: COPYRIGHT & SOCIALS -->
+    <div class="footer-bottom">
+      <p class="copyright">&copy; 2026 Stefan's web designs. All rights reserved.</p>
+      
+      <ul class="footer-socials">
+        <li><a href="https://www.facebook.com/profile.php?id=61594045689533" target="_blank" rel="noopener">Facebook &#8599;</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<!-- PRIVACY POLICY MODAL -->
+<div id="privacyModal" class="modal-backdrop" aria-hidden="true">
+  <div class="modal-content" role="dialog" aria-labelledby="privacyTitle">
+    <button type="button" class="modal-close" id="closePrivacyModal" aria-label="Close modal">&times;</button>
+    
+    <div class="modal-body">
+      <h1 id="privacyTitle">Privacy Policy</h1>
+      <p><strong>Effective Date:</strong> September 11, 2026</p>
+
+      <p>This Privacy Policy explains how <strong>Stefan's web designs</strong> ("we," "our," or "us") collects, uses, and protects your information when you visit our website at <strong>www.portfolio.stefanswebdesigns.workers.dev</strong> and use our contact form.</p>
+
+      <h2>1. Information We Collect</h2>
+      <p>When you fill out and submit our contact form, we collect the personal information you voluntarily provide. This typically includes:</p>
+      <ul>
+        <li>Name</li>
+        <li>Email address</li>
+
+        <li>Any messages or details you type into the form</li>
+      </ul>
+
+      <h2>2. How We Use Your Information</h2>
+      <p>We use the information collected through the contact form strictly to:</p>
+      <ul>
+        <li>Respond to your direct inquiries or requests.</li>
+        <li>Provide you with the services or information you asked for.</li>
+        <li>Maintain internal customer records related to your communication.</li>
+      </ul>
+      <p>We do not sell, rent, or trade your personal information to third parties.</p>
+
+      <h2>3. Data Storage and Third-Party Processors</h2>
+      <p>We take reasonable steps to secure your personal information. Your contact form submissions are processed and securely routed via <strong>FormSubmit</strong>, a third-party form service, to deliver the message directly to our email inbox. FormSubmit does not sell your data. We only retain your email communication for as long as necessary to fulfill your request.</p>
+
+      <h2>4. Your Rights</h2>
+      <p>Depending on your location, you may have the right to access, correct, or request the deletion of the personal data you submitted to us. To exercise these rights, please contact us at the email address below.</p>
+
+      <h2>5. Contact Us</h2>
+      <p>If you have any questions about this Privacy Policy, please reach out to us at:</p>
+      <ul>
+        <li><strong>Email:</strong> stefanswebdesigns@gmail.com</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<style>
+/* ================= SIMPLE FOOTER STYLES ================= */
+#mainFooter {
+  width: calc(100% - 40px);
+  max-width: 1440px;
+  margin: 60px auto 24px auto;
+  border-radius: 40px;
+  background: var(--glassLI);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 32px 40px;
+  transition: background .3s ease, border-color .3s ease, box-shadow .3s ease;
+}
+
+body.light-theme #mainFooter {
+  background: var(--glassLI);
+  border-color: var(--border);
+}
+
+.footer-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* --- Main Section: Logo & Inline Links --- */
+.footer-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.footer-logo {
+  display: inline-flex;
+  align-items: center;
+}
+
+.footer-links {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.footer-links a {
+  text-decoration: none;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+  color: var(--text);
+}
+
+/* --- Bottom Section: Copyright & Socials --- */
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.copyright {
+  font-size: 0.8rem;
+  color: var(--text-social);
+}
+
+.footer-socials {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+}
+
+.footer-socials a {
+  text-decoration: none;
+  color: var(--text-social);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 50px;
+  border: 1px solid transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+body.light-theme .footer-socials a {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.footer-socials a:hover,
+body.light-theme .footer-socials a:hover {
+  border-color: var(--amber);
+  background: var(--amber);
+  color: #ffffff;
+}
+
+/* --- MODAL STYLES --- */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  padding: 20px;
+}
+
+.modal-backdrop.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-content {
+  position: relative;
+  background: var(--glassLI, #ffffff);
+  color: var(--text, #111111);
+  border: 1px solid var(--border, #cccccc);
+  border-radius: 24px;
+  max-width: 650px;
+  width: 100%;
+  max-height: 85vh;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  transform: scale(0.95);
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-backdrop.active .modal-content {
+  transform: scale(1);
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  line-height: 1;
+  color: var(--text-muted, #666666);
+  cursor: pointer;
+  transition: color 0.2s ease;
+  z-index: 10;
+}
+
+.modal-close:hover {
+  color: var(--text, #000000);
+}
+
+.modal-body {
+  padding: 32px 36px;
+  overflow-y: auto;
+  line-height: 1.6;
+}
+
+.modal-body h1 {
+  font-size: 1.6rem;
+  margin-bottom: 8px;
+  margin-top: 0;
+}
+
+.modal-body h2 {
+  font-size: 1.15rem;
+  margin-top: 24px;
+  margin-bottom: 8px;
+}
+
+.modal-body p, .modal-body ul {
+  font-size: 0.9rem;
+  color: var(--text-muted, #444444);
+  margin-bottom: 12px;
+}
+
+.modal-body ul {
+  padding-left: 20px;
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 768px) {
+  #mainFooter {
+    width: calc(100% - 16px);
+    margin: 40px auto 12px auto;
+    border-radius: 28px;
+    padding: 24px 20px;
+  }
+  .footer-main {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  .footer-links {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .footer-bottom {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .footer-socials {
+    width: 100%;
+  }
+  .footer-socials li {
+    width: 100%;
+  }
+  .footer-socials a {
+    width: 100%;
+    justify-content: center;
+  }
+  .modal-body {
+    padding: 24px 20px;
+  }
+}
+</style>
+
+<script>
+// Privacy Modal Logic
+const privacyLink = document.getElementById('privacyLink');
+const privacyModal = document.getElementById('privacyModal');
+const closePrivacyModal = document.getElementById('closePrivacyModal');
+
+function openModal() {
+  privacyModal.classList.add('active');
+  privacyModal.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  privacyModal.classList.remove('active');
+  privacyModal.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+
+privacyLink.addEventListener('click', (e) => {
+  e.preventDefault();
+  openModal();
+});
+
+closePrivacyModal.addEventListener('click', closeModal);
+
+privacyModal.addEventListener('click', (e) => {
+  if (e.target === privacyModal) {
+    closeModal();
+  }
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && privacyModal.classList.contains('active')) {
+    closeModal();
+  }
+});
+
+// Bind ripple effect to footer social button
+if (typeof createRipple === 'function') {
+  document.querySelectorAll('#mainFooter .footer-socials a').forEach(btn => {
+    btn.addEventListener('pointerdown', createRipple);
+  });
+}
+</script>
